@@ -16,7 +16,7 @@ import os
 # Allow importing from the parent Projet_NILM directory
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from refit_metadata import (
+from data.refit_metadata import (
     get_appliance_column,
     get_house_appliances,
     parse_house_number,

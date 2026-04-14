@@ -1,0 +1,8 @@
+# Development dependencies for the REFIT NILM pipeline
+# Install with: pip install -r requirements-dev.txt
+#
+# These are NOT needed to run the pipeline — only for testing and development.
+
+-r requirements.txt
+
+pytest==9.0.3

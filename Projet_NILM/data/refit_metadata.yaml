@@ -1,0 +1,261 @@
+# refit_metadata.yaml
+# --------------------
+# Appliance-column mappings for every REFIT house and canonical alias table.
+#
+# Source: REFIT dataset documentation —
+#   https://pureportal.strath.ac.uk/en/datasets/refit-electrical-load-measurements-cleaned
+#
+# Structure
+# ---------
+# house_appliances:
+#   <house_number>:           # integer key (1-21, no 14)
+#     - <Appliance1 label>    # index 0 → Appliance1 column
+#     - <Appliance2 label>
+#     ...                     # index 8 → Appliance9 column
+#
+# appliance_aliases:
+#   <canonical_name>:         # used throughout the pipeline (e.g. "kettle")
+#     - <label variant 1>     # lower-case strings matched against house labels
+#     - <label variant 2>
+
+house_appliances:
+  1:
+    - Fridge
+    - Freezer
+    - Washing Machine
+    - Dishwasher
+    - Computer
+    - Television
+    - Microwave
+    - Kettle
+    - Toaster
+  2:
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Freezer
+    - Computer
+    - Television
+    - Microwave
+    - Kettle
+  3:
+    - Toaster
+    - Fridge-Freezer
+    - Freezer
+    - Tumble Dryer
+    - Dishwasher
+    - Washing Machine
+    - Television
+    - Microwave
+    - Kettle
+  4:
+    - Fridge
+    - Freezer
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Kettle
+    - Television
+    - Microwave
+    - Toaster
+  5:
+    - Fridge-Freezer
+    - Freezer
+    - Washing Machine
+    - Washing Machine 2
+    - Dishwasher
+    - Tumble Dryer
+    - Television
+    - Kettle
+    - Microwave
+  6:
+    - Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Television
+    - Microwave
+    - Toaster
+    - Computer
+  7:
+    - Fridge
+    - Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Television
+    - Microwave
+    - Kettle
+    - Toaster
+  8:
+    - Fridge-Freezer
+    - Freezer
+    - Washing Machine
+    - Washing Machine 2
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Microwave
+    - Television
+  9:
+    - Fridge-Freezer
+    - Washer Dryer
+    - Washing Machine
+    - Dishwasher
+    - Television Site
+    - Microwave
+    - Kettle
+    - Hi-Fi
+    - Electric Heater
+  10:
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Television
+    - Microwave
+    - Toaster
+    - Computer
+  11:
+    - Fridge
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Television
+    - Microwave
+    - Toaster
+  12:
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Television
+    - Microwave
+    - Toaster
+    - Computer
+  13:
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Freezer
+    - Kettle
+    - Television
+    - Microwave
+    - Toaster
+  15:
+    - Fridge
+    - Freezer
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Television
+    - Microwave
+  16:
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Television
+    - Microwave
+    - Toaster
+    - Computer
+  17:
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Television
+    - Microwave
+    - Unknown
+    - Unknown 2
+  18:
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Television
+    - Microwave
+    - Toaster
+    - Computer
+  19:
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Television
+    - Microwave
+    - Unknown
+    - Unknown 2
+  20:
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Television
+    - Microwave
+    - Toaster
+    - Computer
+  21:
+    - Fridge-Freezer
+    - Washing Machine
+    - Dishwasher
+    - Tumble Dryer
+    - Kettle
+    - Television
+    - Microwave
+    - Toaster
+    - Computer
+
+appliance_aliases:
+  kettle:
+    - kettle
+  microwave:
+    - microwave
+  fridge:
+    - fridge
+    - fridge-freezer
+    - fridge freezer
+    - fridgefreezer
+  tv:
+    - television
+    - tv
+    - television site
+  washing_machine:
+    - washing machine
+  washer_dryer:
+    - washer dryer
+    - washer-dryer
+  dishwasher:
+    - dishwasher
+  tumble_dryer:
+    - tumble dryer
+    - tumbledryer
+  toaster:
+    - toaster
+  freezer:
+    - freezer
+  computer:
+    - computer
+    - desktop
+    - laptop
+  hi_fi:
+    - hi-fi
+    - hifi
+    - hi fi
+  electric_heater:
+    - electric heater
+    - electricheater

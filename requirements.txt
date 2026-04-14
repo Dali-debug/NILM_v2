@@ -1,0 +1,15 @@
+# Python dependencies for the REFIT NILM pipeline
+# Install with: pip install -r requirements.txt
+#
+# Exact versions are pinned for reproducibility.
+# To update: pip install --upgrade -r requirements.txt
+# Dev tools (pytest, etc.) are in requirements-dev.txt
+
+numpy==2.2.6
+pandas==2.3.3
+matplotlib==3.10.7
+scikit-learn==1.7.2
+scipy==1.16.3
+hmmlearn==0.3.3
+PyYAML==6.0.3
+ruptures==1.1.10
