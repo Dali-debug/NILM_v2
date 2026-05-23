@@ -1,7 +1,7 @@
-# Projet NILM (P2M) — Désagrégation d’énergie avec HMM
+# Projet NILM (P2M) — Désagrégation d’énergie avec HMM
 
 ## 1) Contexte et objectif
-Ce projet de fin d’année (P2M) traite la **désagrégation d’énergie** (NILM — Non‑Intrusive Load Monitoring). L’objectif est de partir d’un **signal électrique total** d’une maison et **estimer l’état et la puissance** de 4 appareils : **kettle (bouilloire)**, **microwave (micro‑ondes)**, **fridge (réfrigérateur)** et **TV**. Le modèle principal repose sur des **Gaussian HMM** entraînés par **Baum‑Welch**, puis un **décodage Viterbi** pour estimer les états cachés.
+Ce projet de fin d’année (P2M) traite la **désagrégation d’énergie** (NILM — Non‑Intrusive Load Monitoring). L’objectif est de partir d’un **signal électrique total** d’une maison et **estimer l’état et la puissance** de 4 appareils : **kettle (bouilloire)**, **microwave (micro‑ondes)**, **fridge (réfrigérateur)** et **TV**. Le modèle principal repose sur des **Gaussian HMM** entraînés par **Baum‑Welch**, puis un **décodage Viterbi** pour estimer les états cachés.
 
 ## 2) Jeu de données
 - **REFIT dataset** (20 maisons, UK).
@@ -29,7 +29,7 @@ Ce projet de fin d’année (P2M) traite la **désagrégation d’énergie** (NI
 - **Interpolation des NaN** puis écrêtage des valeurs négatives.
 
 ### 4.2 Entraînement HMM (`pipeline/train_hmm.py`)
-- **Un HMM par appareil** (GaussianHMM — `hmmlearn`).
+- **Un HMM par appareil** (GaussianHMM — `hmmlearn`).
 - **Nombre d’états** par défaut :
   - kettle/microwave/tv → 2 états (OFF/ON)
   - fridge → 3 états (OFF/LOW/HIGH)
