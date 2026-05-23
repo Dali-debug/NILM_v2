@@ -50,7 +50,7 @@ def plot_preprocessing_signals(raw_df: pd.DataFrame,
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from plot_utils import save_fig, style_axes
+    from visualization.plot_utils import save_fig, style_axes
 
     if plots_dir is None:
         script_dir = os.path.dirname(os.path.abspath(__file__))

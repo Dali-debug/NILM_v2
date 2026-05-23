@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NILM Smart Monitor</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0d1a;
+      --surface:  #16162a;
+      --surface2: #1f1f3a;
+      --border:   #2a2a4a;
+      --on:       #00e5a0;
+      --on-glow:  rgba(0,229,160,.25);
+      --low:      #f59e0b;
+      --off:      #3a3a5c;
+      --off-text: #6b6b90;
+      --accent:   #7c3aed;
+      --accent2:  #a855f7;
+      --text:     #e2e2f0;
+      --text-dim: #8888aa;
+      --radius:   16px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+    }
+
+    header { text-align: center; margin-bottom: 24px; }
+    header .logo { font-size: 2rem; margin-bottom: 4px; }
+    header h1 { font-size: 1.35rem; font-weight: 700; }
+    header p  { font-size: .8rem; color: var(--text-dim); margin-top: 3px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      width: 100%;
+      max-width: 440px;
+      margin-bottom: 14px;
+    }
+
+    /* ── House selector ─────────────────────────────────────────── */
+    .house-selector { display: flex; gap: 10px; width: 100%; max-width: 440px; margin-bottom: 14px; }
+    .house-btn {
+      flex: 1; padding: 9px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text-dim); font-size: .88rem; font-weight: 600; cursor: pointer;
+      transition: all .2s;
+    }
+    .house-btn.active { background: var(--accent); border-color: var(--accent2); color: #fff; }
+
+    /* ── Stream control card ────────────────────────────────────── */
+    .card-label {
+      font-size: .78rem; font-weight: 700;
+      letter-spacing: .8px; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 12px; display: block;
+    }
+    .stream-controls { display: flex; gap: 10px; margin-bottom: 12px; }
+    .btn-start {
+      flex: 1; padding: 13px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      border: none; border-radius: 12px; color: #fff;
+      font-size: .95rem; font-weight: 700; cursor: pointer;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-start:hover  { opacity: .9; }
+    .btn-start:active { transform: scale(.97); }
+    .btn-start:disabled { opacity: .35; cursor: not-allowed; }
+
+    .btn-stop {
+      flex: 1; padding: 13px;
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      border: none; border-radius: 12px; color: #fff;
+      font-size: .95rem; font-weight: 700; cursor: pointer;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-stop:hover  { opacity: .9; }
+    .btn-stop:active { transform: scale(.97); }
+    .btn-stop:disabled { opacity: .35; cursor: not-allowed; }
+
+    /* live sample counter */
+    .live-info {
+      font-size: .8rem; color: var(--text-dim);
+      display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    }
+    .live-pulse {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--off); flex-shrink: 0;
+      transition: background .3s;
+    }
+    .live-pulse.active { background: var(--on); animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: .35; }
+    }
+
+    .status-bar {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .78rem; color: var(--text-dim); min-height: 18px;
+    }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--off); flex-shrink: 0; transition: background .3s;
+    }
+    .status-dot.collecting { background: var(--accent2); }
+    .status-dot.ready      { background: var(--on); }
+
+    /* ── Window progress card ───────────────────────────────────── */
+    #windowCard .win-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    #windowCard .win-title {
+      font-size: .78rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .8px; color: var(--text-dim);
+    }
+    #windowCard .win-badge {
+      font-size: .75rem; font-weight: 700;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 3px 10px; color: var(--accent2);
+      transition: background .3s, color .3s;
+    }
+    #windowCard .win-badge.ready {
+      background: rgba(0,229,160,.15); border-color: var(--on); color: var(--on);
+    }
+    .progress-track {
+      height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .progress-fill {
+      height: 100%; width: 0%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width .35s ease;
+    }
+    .progress-fill.complete { background: var(--on); }
+    #windowInfo {
+      font-size: .82rem; color: var(--text-dim);
+      min-height: 36px;
+    }
+    #windowInfo .win-range {
+      font-weight: 600; color: var(--text); font-size: .85rem; margin-bottom: 2px;
+    }
+    #windowInfo .win-mean {
+      color: var(--accent2); font-size: .82rem;
+    }
+
+    /* ── Appliance grid ─────────────────────────────────────────── */
+    .appliance-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; width: 100%; max-width: 440px; margin-bottom: 14px;
+    }
+    .app-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 14px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 7px; transition: border-color .3s, box-shadow .3s, background .3s;
+    }
+    .app-card.on {
+      border-color: var(--on); box-shadow: 0 0 18px var(--on-glow);
+      background: rgba(0,229,160,.05);
+    }
+    .app-card.low {
+      border-color: var(--low);
+      box-shadow: 0 0 18px rgba(245,158,11,.2);
+      background: rgba(245,158,11,.04);
+    }
+    .app-card .icon { font-size: 1.9rem; line-height: 1; }
+    .app-card .name {
+      font-size: .75rem; font-weight: 600; letter-spacing: .4px;
+      text-transform: uppercase; color: var(--text-dim);
+    }
+    .app-card.on .name,
+    .app-card.low .name { color: var(--text); }
+    .state-badge {
+      padding: 3px 11px; border-radius: 20px;
+      font-size: .75rem; font-weight: 700; letter-spacing: .7px;
+      background: var(--off); color: var(--off-text);
+      transition: background .3s, color .3s;
+    }
+    .app-card.on  .state-badge { background: var(--on);  color: #0d0d1a; }
+    .app-card.low .state-badge { background: var(--low); color: #0d0d1a; }
+    .app-card .power-val {
+      font-size: 1.1rem; font-weight: 800; color: var(--off-text);
+      transition: color .3s;
+    }
+    .app-card.on  .power-val { color: var(--on); }
+    .app-card.low .power-val { color: var(--low); }
+    .conf-bar-wrap {
+      width: 100%; background: var(--border); border-radius: 4px;
+      height: 3px; overflow: hidden;
+    }
+    .conf-bar {
+      height: 100%; background: var(--off); border-radius: 4px;
+      transition: width .4s, background .3s;
+    }
+    .app-card.on  .conf-bar { background: var(--on); }
+    .app-card.low .conf-bar { background: var(--low); }
+    .conf-label { font-size: .66rem; color: var(--text-dim); align-self: flex-end; }
+    .app-card.skeleton .icon,
+    .app-card.skeleton .name,
+    .app-card.skeleton .state-badge,
+    .app-card.skeleton .power-val { opacity: .3; }
+
+    /* ── Controls bar ────────────────────────────────────────────── */
+    .controls {
+      display: flex; gap: 10px; width: 100%; max-width: 440px; margin-bottom: 14px;
+    }
+    .btn-reset {
+      flex: 1; padding: 11px; background: transparent;
+      border: 1px solid var(--border); border-radius: 12px;
+      color: var(--text-dim); font-size: .83rem; cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-reset:hover { border-color: var(--accent2); color: var(--text); }
+
+    /* ── History ─────────────────────────────────────────────────── */
+    .history-wrap { width: 100%; max-width: 440px; }
+    .history-title {
+      font-size: .72rem; text-transform: uppercase;
+      letter-spacing: .8px; color: var(--text-dim); margin-bottom: 8px;
+    }
+    .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
+    .history-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 12px; font-size: .73rem;
+      color: var(--text-dim);
+    }
+    .h-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .h-win  { font-weight: 700; color: var(--accent2); }
+    .h-mean { font-weight: 700; color: var(--text); }
+    .h-states { display: flex; gap: 5px; flex-wrap: wrap; }
+    .h-tag {
+      padding: 2px 7px; border-radius: 10px;
+      font-size: .66rem; font-weight: 600;
+    }
+    .h-tag.on  { background: rgba(0,229,160,.15); color: var(--on); }
+    .h-tag.low { background: rgba(245,158,11,.15); color: var(--low); }
+    .h-tag.off { background: var(--border);        color: var(--off-text); }
+    .h-time { font-size: .66rem; color: var(--text-dim); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">🏠</div>
+    <h1>NILM Smart Monitor</h1>
+    <p>Streaming automatique · fenêtres de 7 échantillons · inférence HMM</p>
+  </header>
+
+  <!-- House selector -->
+  <div class="house-selector">
+    <button class="house-btn active" data-house="3">🏡 Maison 3</button>
+    <button class="house-btn"        data-house="9">🏘️ Maison 9</button>
+  </div>
+
+  <!-- Stream control card -->
+  <div class="card">
+    <span class="card-label">Streaming depuis le dataset</span>
+    <div class="stream-controls">
+      <button class="btn-start" id="startBtn">▶ Démarrer</button>
+      <button class="btn-stop"  id="stopBtn" disabled>■ Arrêter</button>
+    </div>
+    <div class="live-info">
+      <div class="live-pulse" id="livePulse"></div>
+      <span id="liveText">En attente de démarrage…</span>
+    </div>
+    <div class="status-bar">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Inactif</span>
+    </div>
+  </div>
+
+  <!-- Window progress card -->
+  <div class="card" id="windowCard">
+    <div class="win-header">
+      <span class="win-title">Fenêtre en cours</span>
+      <span class="win-badge" id="winBadge">0 / 7</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div id="windowInfo">Démarrez le stream pour lancer l'inférence.</div>
+  </div>
+
+  <!-- Appliance cards -->
+  <div class="appliance-grid" id="appGrid">
+    <div class="app-card skeleton" id="card-kettle">
+      <div class="icon">🫖</div>
+      <div class="name">Kettle</div>
+      <div class="state-badge">—</div>
+      <div class="power-val">— W</div>
+      <div class="conf-bar-wrap"><div class="conf-bar" style="width:0%"></div></div>
+      <div class="conf-label">conf: —</div>
+    </div>
+    <div class="app-card skeleton" id="card-microwave">
+      <div class="icon">📟</div>
+      <div class="name">Micro-onde</div>
+      <div class="state-badge">—</div>
+      <div class="power-val">— W</div>
+      <div class="conf-bar-wrap"><div class="conf-bar" style="width:0%"></div></div>
+      <div class="conf-label">conf: —</div>
+    </div>
+    <div class="app-card skeleton" id="card-fridge">
+      <div class="icon">❄️</div>
+      <div class="name">Réfrigérateur</div>
+      <div class="state-badge">—</div>
+      <div class="power-val">— W</div>
+      <div class="conf-bar-wrap"><div class="conf-bar" style="width:0%"></div></div>
+      <div class="conf-label">conf: —</div>
+    </div>
+    <div class="app-card skeleton" id="card-tv">
+      <div class="icon">📺</div>
+      <div class="name">Télévision</div>
+      <div class="state-badge">—</div>
+      <div class="power-val">— W</div>
+      <div class="conf-bar-wrap"><div class="conf-bar" style="width:0%"></div></div>
+      <div class="conf-label">conf: —</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn-reset" id="resetBtn">↺ Réinitialiser</button>
+  </div>
+
+  <!-- History -->
+  <div class="history-wrap">
+    <div class="history-title">Historique des fenêtres</div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────────────
+  let selectedHouse   = 3;
+  let windowSize      = 7;
+  let lastWindowIndex = -1;
+  let evtSource       = null;
+  let isStreaming     = false;
+  const history       = [];
+  const MAX_HISTORY   = 10;
+
+  const ICONS = { kettle:'🫖', microwave:'📟', fridge:'❄️', tv:'📺' };
+
+  // ── DOM refs ───────────────────────────────────────────────────────────
+  const startBtn     = document.getElementById('startBtn');
+  const stopBtn      = document.getElementById('stopBtn');
+  const livePulse    = document.getElementById('livePulse');
+  const liveText     = document.getElementById('liveText');
+  const statusDot    = document.getElementById('statusDot');
+  const statusText   = document.getElementById('statusText');
+  const winBadge     = document.getElementById('winBadge');
+  const progressFill = document.getElementById('progressFill');
+  const windowInfo   = document.getElementById('windowInfo');
+  const resetBtn     = document.getElementById('resetBtn');
+  const historyList  = document.getElementById('historyList');
+
+  // ── House selector ─────────────────────────────────────────────────────
+  document.querySelectorAll('.house-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.house-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedHouse = parseInt(btn.dataset.house);
+      stopStreaming();
+      resetUI();
+    });
+  });
+
+  // ── Stream controls ────────────────────────────────────────────────────
+  startBtn.addEventListener('click', startStreaming);
+  stopBtn.addEventListener('click',  stopStreaming);
+
+  async function startStreaming() {
+    startBtn.disabled = true;
+    stopBtn.disabled  = false;
+    isStreaming       = true;
+    lastWindowIndex   = -1;
+
+    livePulse.classList.add('active');
+    liveText.textContent = 'Connexion au serveur…';
+    setStatus('collecting', 'Démarrage du stream…');
+
+    try {
+      const res  = await fetch('/start_stream', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ house: selectedHouse }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        liveText.textContent = data.error || 'Erreur serveur';
+        stopStreaming();
+        return;
+      }
+
+      liveText.textContent = 'Lecture du dataset en cours…';
+      windowInfo.textContent = 'Collecte des échantillons…';
+
+      // SSE — le serveur pousse chaque mise à jour en temps réel
+      evtSource = new EventSource('/events');
+
+      evtSource.addEventListener('status', e => {
+        const d = JSON.parse(e.data);
+        if (d.house !== selectedHouse) return;
+        windowSize = d.window_size || windowSize;
+        updateBufferProgress(d.samples_buffered, d.windows_completed);
+      });
+
+      evtSource.addEventListener('result', e => {
+        const d = JSON.parse(e.data);
+        if (d.house !== selectedHouse) return;
+        if (d.window_index === lastWindowIndex) return;
+        lastWindowIndex = d.window_index;
+        renderAppliances(d.appliances);
+        showWindowReady(d);
+        addHistory(d);
+      });
+
+      evtSource.onerror = () => {
+        if (!isStreaming) return;
+        liveText.textContent = 'Connexion SSE perdue.';
+      };
+
+    } catch (err) {
+      liveText.textContent = 'Impossible de joindre le serveur.';
+      stopStreaming();
+    }
+  }
+
+  async function stopStreaming() {
+    isStreaming       = false;
+    startBtn.disabled = false;
+    stopBtn.disabled  = true;
+    livePulse.classList.remove('active');
+
+    if (evtSource) { evtSource.close(); evtSource = null; }
+
+    try {
+      await fetch('/stop_stream', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ house: selectedHouse }),
+      });
+    } catch (_) {}
+
+    liveText.textContent = 'Stream arrêté.';
+    setStatus('idle', 'Inactif');
+  }
+
+  // ── Mise à jour progression buffer (appelée sur événement SSE "status") ──
+  function updateBufferProgress(buffered, windowsCompleted) {
+    const pct     = (buffered / windowSize) * 100;
+    const nextWin = windowsCompleted + 1;
+    const remaining = windowSize - buffered;
+
+    progressFill.style.width = pct + '%';
+    progressFill.classList.remove('complete');
+    winBadge.classList.remove('ready');
+    winBadge.textContent = `${buffered} / ${windowSize}`;
+
+    if (remaining > 0 && remaining < windowSize) {
+      windowInfo.textContent =
+        `Fenêtre #${nextWin} · ${remaining} échantillon${remaining > 1 ? 's' : ''} restant${remaining > 1 ? 's' : ''}`;
+    }
+
+    const total = windowsCompleted;
+    liveText.textContent =
+      `${total} fenêtre${total !== 1 ? 's' : ''} inférée${total !== 1 ? 's' : ''} · échantillon ${buffered}/${windowSize} en cours`;
+    setStatus('collecting', `Collecte ${buffered}/${windowSize}`);
+  }
+
+  // ── Show completed window ──────────────────────────────────────────────
+  function showWindowReady(data) {
+    const fill = progressFill;
+    fill.style.width = '100%';
+    fill.classList.add('complete');
+    winBadge.textContent = `${data.window_size} / ${data.window_size}`;
+    winBadge.classList.add('ready');
+
+    const tS   = (data.t_start || '').slice(11, 19) || '?';
+    const tE   = (data.t_end   || '').slice(11, 19) || '?';
+    const date = (data.t_start || '').slice(0, 10);
+    windowInfo.innerHTML = `
+      <div class="win-range">Fenêtre #${data.window_index} complète — ${date}</div>
+      <div class="win-mean">${tS} → ${tE} &nbsp;·&nbsp; Moy: <strong>${data.mean_aggregate} W</strong></div>
+    `;
+    setStatus('ready', `Fenêtre #${data.window_index} inférée — résultats mis à jour`);
+
+    setTimeout(() => {
+      fill.style.width = '0%';
+      fill.classList.remove('complete');
+      winBadge.classList.remove('ready');
+      winBadge.textContent = `0 / ${data.window_size}`;
+    }, 900);
+  }
+
+  // ── Render appliance cards ─────────────────────────────────────────────
+  function renderAppliances(apps) {
+    Object.entries(apps).forEach(([name, info]) => {
+      const card = document.getElementById('card-' + name);
+      if (!card) return;
+      card.classList.remove('skeleton', 'on', 'low');
+
+      const state = info.state;
+      if (state === 'ON' || state === 'HIGH') card.classList.add('on');
+      else if (state === 'LOW')               card.classList.add('low');
+
+      card.querySelector('.state-badge').textContent = state;
+      card.querySelector('.power-val').textContent   = Math.round(info.power_w) + ' W';
+      const confPct = Math.round(info.confidence * 100);
+      card.querySelector('.conf-bar').style.width    = confPct + '%';
+      card.querySelector('.conf-label').textContent  = 'conf: ' + confPct + '%';
+    });
+  }
+
+  // ── History ────────────────────────────────────────────────────────────
+  function addHistory(data) {
+    history.unshift(data);
+    if (history.length > MAX_HISTORY) history.pop();
+    renderHistory();
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = '';
+    history.forEach(data => {
+      const apps = data.appliances || {};
+      const tags = Object.entries(apps).map(([name, info]) => {
+        const cls = info.state === 'ON' || info.state === 'HIGH' ? 'on'
+                  : info.state === 'LOW' ? 'low' : 'off';
+        return `<span class="h-tag ${cls}">${ICONS[name] || ''} ${info.state}</span>`;
+      }).join('');
+
+      const tS   = (data.t_start || '').slice(11, 19);
+      const tE   = (data.t_end   || '').slice(11, 19);
+      const date = (data.t_start || '').slice(0, 10);
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.innerHTML = `
+        <div class="h-row1">
+          <span class="h-win">Fenêtre #${data.window_index}</span>
+          <span class="h-mean">${data.mean_aggregate} W</span>
+        </div>
+        <div class="h-row1">
+          <span class="h-time">${date} ${tS}→${tE}</span>
+          <div class="h-states">${tags}</div>
+        </div>`;
+      historyList.appendChild(item);
+    });
+  }
+
+  // ── Reset ──────────────────────────────────────────────────────────────
+  resetBtn.addEventListener('click', async () => {
+    await stopStreaming();
+    await fetch('/reset', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ house: selectedHouse }),
+    });
+    resetUI();
+  });
+
+  function resetUI() {
+    lastWindowIndex = -1;
+    history.length  = 0;
+    historyList.innerHTML = '';
+
+    progressFill.style.width = '0%';
+    progressFill.classList.remove('complete');
+    winBadge.textContent = `0 / ${windowSize}`;
+    winBadge.classList.remove('ready');
+    windowInfo.textContent = 'Démarrez le stream pour lancer l\'inférence.';
+
+    liveText.textContent = 'En attente de démarrage…';
+    setStatus('idle', 'Inactif');
+
+    document.querySelectorAll('.app-card').forEach(card => {
+      card.classList.remove('on', 'low');
+      card.classList.add('skeleton');
+      card.querySelector('.state-badge').textContent = '—';
+      card.querySelector('.power-val').textContent   = '— W';
+      card.querySelector('.conf-bar').style.width    = '0%';
+      card.querySelector('.conf-label').textContent  = 'conf: —';
+    });
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────
+  function setStatus(type, msg) {
+    statusText.textContent = msg;
+    statusDot.className = 'status-dot';
+    if (type === 'collecting') statusDot.classList.add('collecting');
+    if (type === 'ready')      statusDot.classList.add('ready');
+  }
+</script>
+</body>
+</html>

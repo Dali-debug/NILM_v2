@@ -5,11 +5,11 @@ REFIT NILM pipeline package.
 
 Public API
 ----------
-    from Projet_NILM.preprocessing import preprocess_house
-    from Projet_NILM.train_hmm import run_training
-    from Projet_NILM.disaggregate import run_disaggregation
-    from Projet_NILM.refit_metadata import get_appliance_column, parse_house_number
-    from Projet_NILM.config import DEFAULT_APPLIANCES, POWER_ON_THRESHOLD
+    from Projet_NILM.pipeline.preprocessing import preprocess_house
+    from Projet_NILM.pipeline.train_hmm     import run_training
+    from Projet_NILM.pipeline.disaggregate  import run_disaggregation
+    from Projet_NILM.data.refit_metadata    import get_appliance_column, parse_house_number
+    from Projet_NILM.config                 import DEFAULT_APPLIANCES, POWER_ON_THRESHOLD
 """
 
 from .config import DEFAULT_APPLIANCES, DEFAULT_N_STATES, POWER_ON_THRESHOLD

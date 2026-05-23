@@ -45,3 +45,6 @@ htmlcov/
 # OS
 .DS_Store
 Thumbs.db
+
+# Old MPLAB project — replaced by NILM_BOARD.X
+NILM_SAMA7G54.X/

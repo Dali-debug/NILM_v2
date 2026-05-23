@@ -1,0 +1,33 @@
+name: nilm_monitor
+description: NILM Smart Monitor — Real-time appliance detection via Raspberry Pi
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  provider: ^6.1.2
+  shared_preferences: ^2.2.3
+  sqflite: ^2.3.3
+  path: ^1.9.0
+  fl_chart: ^0.69.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "Nilm_logo.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#0D0D1A"
+  adaptive_icon_foreground: "Nilm_logo.png"
+
+flutter:
+  uses-material-design: true

@@ -3,8 +3,8 @@ plot_utils.py
 -------------
 Shared matplotlib helpers for the REFIT NILM pipeline.
 
-Consolidates boilerplate that was repeated across plot_appliance_signatures.py,
-plot_prf_metrics.py, and disaggregate.py.
+Used by pipeline.preprocessing and pipeline.disaggregate to produce
+consistent, memory-safe figures without duplicating boilerplate.
 """
 
 from __future__ import annotations
